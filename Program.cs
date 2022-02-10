@@ -26,5 +26,25 @@ var productFamilyId = productFamilyLookup.LookupValues.Values.Where(t => t.Name.
 var osLookup = await client.Lookup("4", productSeriesId);
 var osId = osLookup.LookupValues.Values.Where(t => t.Name.Equals(config["Nvidia:OperatingSystem"], StringComparison.CurrentCultureIgnoreCase)).Select(t => t.Value).FirstOrDefault();
 
+// TODO: Provide text-based selection instead of relying on appsetting values
+
+
+// TODO: Get current version number on system
+
+
+// TODO: Extract latest version number, and compare
+
+
 var driverLink = await client.GetDriverDownloadLinkAsync(productSeriesId, productFamilyId, osId, languageId, downloadTypeId);
 
+
+
+// TODO: Download driver exe
+
+
+
+// TODO: Include text-based progress bar
+
+
+
+// TODO: Run driver updater
