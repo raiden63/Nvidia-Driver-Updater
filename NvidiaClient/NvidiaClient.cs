@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Xml.Serialization;
 using HtmlAgilityPack;
 
 namespace NvidiaDriverUpdater.NvidiaClient
@@ -11,7 +13,29 @@ namespace NvidiaDriverUpdater.NvidiaClient
             _httpClient = httpClient;
         }
 
-        public async Task<NvidiaOptions> GetNvidiaOptionsAsync()
+        public async Task<string> GetDriverDownloadLinkAsync(string productSeriesId, string productFamilyId, string osId, string languageId, string downloadTypeId)
+        {
+            var response1 = await _httpClient.GetAsync($"download/processDriver.aspx?psid={productSeriesId}&pfid={productFamilyId}&osId={osId}&lid={languageId}&dtid={downloadTypeId}&lang-en-us&ctk=0&rpf=1&dtcid=1");
+            var driverPageLink = await response1.Content.ReadAsStringAsync();
+
+            var response2 = await _httpClient.GetAsync(driverPageLink);
+            var confirmationPage = await response2.Content.ReadAsStringAsync();
+
+            var htmlDoc = new HtmlDocument();
+            htmlDoc.LoadHtml(confirmationPage);
+
+            var confirmationLink = htmlDoc.DocumentNode.SelectSingleNode("//a[@id='lnkDwnldBtn']").GetAttributeValue("href", null);
+            var response3 = await _httpClient.GetAsync(confirmationLink);
+            var downloadPage = await response3.Content.ReadAsStringAsync();
+
+            var htmlDoc2 = new HtmlDocument();
+            htmlDoc2.LoadHtml(downloadPage);
+            var downloadLink = htmlDoc2.DocumentNode.SelectSingleNode("//div[@id='mainContent']/table//a").GetAttributeValue("href", null);
+
+            return downloadLink;
+        }
+
+        public async Task<NvidiaRootOptions> GetNvidiaRootOptionsAsync()
         {
             var response = await _httpClient.GetAsync("download/index.aspx");
 
@@ -28,36 +52,6 @@ namespace NvidiaDriverUpdater.NvidiaClient
                     Value = t.GetAttributeValue("value", null), 
                     Label = t.GetDirectInnerText() 
                 });
-
-
-            // // Product Series
-
-            // var productSeriesNode = htmlDoc.DocumentNode.SelectSingleNode("//select[@id='selProductSeries']");
-            // var productSeriesOptions = productSeriesNode.SelectNodes("./option")
-            //     .Select(t => new ProductSeries { 
-            //         Value = t.GetAttributeValue("value", null), 
-            //         Label = t.GetDirectInnerText() 
-            //     });
-
-
-            // // Product Family
-
-            // var productFamilyNode = htmlDoc.DocumentNode.SelectSingleNode("//select[@id='selProductFamily']");
-            // var productFamilyOptions = productFamilyNode.SelectNodes("./option")
-            //     .Select(t => new ProductFamily { 
-            //         Value = t.GetAttributeValue("value", null), 
-            //         Label = t.GetDirectInnerText() 
-            //     });
-
-
-            // // Operating System
-            
-            // var operatingSystemNode = htmlDoc.DocumentNode.SelectSingleNode("//select[@id='selOperatingSystem']");
-            // var operatingSystemOptions = operatingSystemNode.SelectNodes("./option")
-            //     .Select(t => new OperatingSystem { 
-            //         Value = t.GetAttributeValue("value", null), 
-            //         Label = t.GetDirectInnerText() 
-            //     });
 
 
             // Download Type
@@ -79,15 +73,23 @@ namespace NvidiaDriverUpdater.NvidiaClient
                     Label = t.GetDirectInnerText() 
                 });
 
-            return new NvidiaOptions
+            return new NvidiaRootOptions
             {
                 ProductTypes = productTypeOptions.ToArray(),
-                // ProductSeries = productSeriesOptions.ToArray(),
-                // ProductFamilies = productFamilyOptions.ToArray(),
-                // OperatingSystems = operatingSystemOptions.ToArray(),
                 DownloadTypes = downloadTypeOptions.ToArray(),
                 Languages = languageOptions.ToArray()
             };
+        }
+
+        public async Task<NvidiaLookupResponse> Lookup(string typeId, string parentId = "")
+        {
+            var response = await _httpClient.GetAsync($"download/API/lookupValueSearch.aspx?TypeID={typeId}&ParentID={parentId}");
+
+            var serializer = new XmlSerializer(typeof(NvidiaLookupResponse));
+            var responseString = await response.Content.ReadAsStringAsync();
+            var lookupResponse = serializer.Deserialize(await response.Content.ReadAsStreamAsync()) as NvidiaLookupResponse;
+            
+            return lookupResponse;
         }
     }
 }
