@@ -4,18 +4,16 @@ namespace NvidiaDriverUpdater.NvidiaClient
 {
     public class NvidiaClient : INvidiaClient
     {
-        private const string _selectionUrl = "https://www.nvidia.com/download/index.aspx";
         private readonly HttpClient _httpClient;
 
         public NvidiaClient(HttpClient httpClient)
         {
             _httpClient = httpClient;
-            _httpClient.BaseAddress = new Uri(_selectionUrl);
         }
 
         public async Task<NvidiaOptions> GetNvidiaOptionsAsync()
         {
-            var response = await _httpClient.GetAsync("");
+            var response = await _httpClient.GetAsync("download/index.aspx");
 
             var responseString = await response.Content.ReadAsStringAsync();
 

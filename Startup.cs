@@ -6,11 +6,15 @@ namespace NvidiaDriverUpdater
 {
     public class Startup
     {
-        public static ServiceProvider BuildServices()
+        public static ServiceProvider BuildServices(IConfiguration config)
         {
             var services = new ServiceCollection();
 
-            services.AddHttpClient<Client.INvidiaClient, Client.NvidiaClient>();
+            services.AddHttpClient<Client.INvidiaClient, Client.NvidiaClient>(
+                client => {
+                    client.BaseAddress = new Uri(config["Nvidia:BaseUri"]);
+                }
+            );
 
             return services.BuildServiceProvider();
         }

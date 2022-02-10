@@ -7,7 +7,7 @@ using NvidiaDriverUpdater.NvidiaClient;
 // See https://aka.ms/new-console-template for more information
 
 var config = Startup.BuildConfig();
-var services = Startup.BuildServices();
+var services = Startup.BuildServices(config);
 
 var client = services.GetRequiredService<INvidiaClient>();
 
