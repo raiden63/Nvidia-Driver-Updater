@@ -6,6 +6,6 @@ namespace NvidiaDriverUpdater.NvidiaClient
 
         Task<NvidiaRootOptions> GetNvidiaRootOptionsAsync();
 
-        Task<string> GetDriverDownloadLinkAsync(string productSeriesId, string productFamilyId, string osId, string languageId, string downloadTypeId);
+        Task<string> DownloadDriverAsync(string productSeriesId, string productFamilyId, string osId, string languageId, string downloadTypeId);
     }
 }

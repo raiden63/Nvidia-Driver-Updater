@@ -1,6 +1,6 @@
-using System.Text.Json;
 using System.Xml.Serialization;
 using HtmlAgilityPack;
+using Microsoft.Extensions.Configuration;
 
 namespace NvidiaDriverUpdater.NvidiaClient
 {
@@ -8,12 +8,16 @@ namespace NvidiaDriverUpdater.NvidiaClient
     {
         private readonly HttpClient _httpClient;
 
-        public NvidiaClient(HttpClient httpClient)
+        private readonly string _downloadDir;
+
+        public NvidiaClient(HttpClient httpClient, IConfiguration config)
         {
             _httpClient = httpClient;
+
+            _downloadDir = config["DownloadDir"];
         }
 
-        public async Task<string> GetDriverDownloadLinkAsync(string productSeriesId, string productFamilyId, string osId, string languageId, string downloadTypeId)
+        public async Task<string> DownloadDriverAsync(string productSeriesId, string productFamilyId, string osId, string languageId, string downloadTypeId)
         {
             var response1 = await _httpClient.GetAsync($"download/processDriver.aspx?psid={productSeriesId}&pfid={productFamilyId}&osId={osId}&lid={languageId}&dtid={downloadTypeId}&lang-en-us&ctk=0&rpf=1&dtcid=1");
             var driverPageLink = await response1.Content.ReadAsStringAsync();
@@ -32,7 +36,18 @@ namespace NvidiaDriverUpdater.NvidiaClient
             htmlDoc2.LoadHtml(downloadPage);
             var downloadLink = htmlDoc2.DocumentNode.SelectSingleNode("//div[@id='mainContent']/table//a").GetAttributeValue("href", null);
 
-            return downloadLink;
+            var fileName = Path.GetFileName(downloadLink);
+            var response4 = await _httpClient.GetAsync(downloadLink);
+            var responseStream = await response4.Content.ReadAsStreamAsync();
+
+            var downloadPath = Path.Combine(_downloadDir, fileName);
+            using (var fileStream = new FileStream(downloadPath, FileMode.CreateNew))
+            {
+                responseStream.Position = 0;
+                await responseStream.CopyToAsync(fileStream);
+            }
+
+            return downloadPath;
         }
 
         public async Task<NvidiaRootOptions> GetNvidiaRootOptionsAsync()

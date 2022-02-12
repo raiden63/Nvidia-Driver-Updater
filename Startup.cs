@@ -10,6 +10,8 @@ namespace NvidiaDriverUpdater
         {
             var services = new ServiceCollection();
 
+            services.AddSingleton<IConfiguration>(config);
+
             services.AddHttpClient<Client.INvidiaClient, Client.NvidiaClient>(
                 client => {
                     client.BaseAddress = new Uri(config["Nvidia:BaseUri"]);

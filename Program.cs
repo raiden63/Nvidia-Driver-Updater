@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using NvidiaDriverUpdater;
 using NvidiaDriverUpdater.NvidiaClient;
 
@@ -35,11 +34,8 @@ var osId = osLookup.LookupValues.Values.Where(t => t.Name.Equals(config["Nvidia:
 // TODO: Extract latest version number, and compare
 
 
-var driverLink = await client.GetDriverDownloadLinkAsync(productSeriesId, productFamilyId, osId, languageId, downloadTypeId);
+var downloadPath = await client.DownloadDriverAsync(productSeriesId, productFamilyId, osId, languageId, downloadTypeId);
 
-
-
-// TODO: Download driver exe
 
 
 
