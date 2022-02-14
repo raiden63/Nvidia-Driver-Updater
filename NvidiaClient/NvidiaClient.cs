@@ -1,34 +1,48 @@
 using System.Xml.Serialization;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Configuration;
+using Serilog;
 
 namespace NvidiaDriverUpdater.NvidiaClient
 {
     public class NvidiaClient : INvidiaClient
     {
         private readonly HttpClient _httpClient;
-
+        private readonly ILogger _logger;
         private readonly string _downloadDir;
 
-        public NvidiaClient(HttpClient httpClient, IConfiguration config)
+        public NvidiaClient(HttpClient httpClient, IConfiguration config, ILogger logger)
         {
             _httpClient = httpClient;
 
+            _logger = logger;
             _downloadDir = config["DownloadDir"];
         }
 
         public async Task<string> DownloadDriverAsync(string productSeriesId, string productFamilyId, string osId, string languageId, string downloadTypeId)
         {
+            _logger.Information("Scrubbing through Nvidia site");
+
+            // Part 1: Submit driver search parameters
+            // Response body will be a URL
+
             var response1 = await _httpClient.GetAsync($"download/processDriver.aspx?psid={productSeriesId}&pfid={productFamilyId}&osId={osId}&lid={languageId}&dtid={downloadTypeId}&lang-en-us&ctk=0&rpf=1&dtcid=1");
             var driverPageLink = await response1.Content.ReadAsStringAsync();
 
+            _logger.Information("Redirect Link: {RedirectLink}", driverPageLink);
+
+            // Part 2: Get first download button link
+
             var response2 = await _httpClient.GetAsync(driverPageLink);
             var confirmationPage = await response2.Content.ReadAsStringAsync();
-
             var htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(confirmationPage);
-
             var confirmationLink = htmlDoc.DocumentNode.SelectSingleNode("//a[@id='lnkDwnldBtn']").GetAttributeValue("href", null);
+
+            _logger.Information("Download Button Link 1: {DownloadLink1}", confirmationLink);
+
+            // Part 3: Get second download button link
+
             var response3 = await _httpClient.GetAsync(confirmationLink);
             var downloadPage = await response3.Content.ReadAsStringAsync();
 
@@ -36,16 +50,23 @@ namespace NvidiaDriverUpdater.NvidiaClient
             htmlDoc2.LoadHtml(downloadPage);
             var downloadLink = htmlDoc2.DocumentNode.SelectSingleNode("//div[@id='mainContent']/table//a").GetAttributeValue("href", null);
 
-            var fileName = Path.GetFileName(downloadLink);
+            _logger.Information("Download Button Link 2: {DownloadLink2}", confirmationLink);
+
+            // Part 4: Download the driver
+
+            _logger.Information("Downloading driver");
+
             var response4 = await _httpClient.GetAsync(downloadLink);
             var responseStream = await response4.Content.ReadAsStreamAsync();
 
+            var fileName = Path.GetFileName(downloadLink);
             var downloadPath = Path.Combine(_downloadDir, fileName);
             using (var fileStream = new FileStream(downloadPath, FileMode.CreateNew))
             {
-                responseStream.Position = 0;
                 await responseStream.CopyToAsync(fileStream);
             }
+
+            _logger.Information("Download successful: {DriverFilePath}", downloadPath);
 
             return downloadPath;
         }
