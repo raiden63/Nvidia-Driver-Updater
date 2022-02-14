@@ -50,7 +50,7 @@ namespace NvidiaDriverUpdater.NvidiaClient
             htmlDoc2.LoadHtml(downloadPage);
             var downloadLink = htmlDoc2.DocumentNode.SelectSingleNode("//div[@id='mainContent']/table//a").GetAttributeValue("href", null);
 
-            _logger.Information("Download Button Link 2: {DownloadLink2}", confirmationLink);
+            _logger.Information("Download Button Link 2: {DownloadLink2}", downloadLink);
 
             // Part 4: Download the driver
 
