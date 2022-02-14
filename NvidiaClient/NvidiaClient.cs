@@ -56,12 +56,16 @@ namespace NvidiaDriverUpdater.NvidiaClient
 
             _logger.Information("Downloading driver");
 
-            var response4 = await _httpClient.GetAsync(downloadLink);
-            var responseStream = await response4.Content.ReadAsStreamAsync();
+            // TODO: Use HttpCompletionOption.ResponseHeadersRead to capture download progress
+            // https://github.com/dotnet/runtime/issues/16681#issuecomment-195980023
 
+            var response4 = await _httpClient.GetAsync(downloadLink);
+            
             var fileName = Path.GetFileName(downloadLink);
             var downloadPath = Path.Combine(_downloadDir, fileName);
+            
             using (var fileStream = new FileStream(downloadPath, FileMode.CreateNew))
+            using (var responseStream = await response4.Content.ReadAsStreamAsync())
             {
                 await responseStream.CopyToAsync(fileStream);
             }
