@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog;
+using Serilog.Sinks.SystemConsole.Themes;
 using Client = NvidiaDriverUpdater.NvidiaClient;
 
 namespace NvidiaDriverUpdater
@@ -18,7 +20,18 @@ namespace NvidiaDriverUpdater
                 }
             );
 
+            services.AddSingleton<ILogger>(BuildSerilogLogger(config));
+
             return services.BuildServiceProvider();
+        }
+
+        private static ILogger BuildSerilogLogger(IConfiguration config)
+        {
+            var loggerConfig = new LoggerConfiguration()
+                .WriteTo.Console(theme: SystemConsoleTheme.Colored)
+            ;
+
+            return loggerConfig.CreateLogger();
         }
 
         public static IConfiguration BuildConfig()
