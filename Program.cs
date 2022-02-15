@@ -31,7 +31,7 @@ var osId = osLookup.LookupValues.Values.Where(t => t.Name.Equals(config["Nvidia:
 // TODO: Get current version number on system
 
 
-// TODO: Extract latest version number, and compare
+// TODO: Extract latest version number, and compare. Only download if higher version.
 
 
 var downloadPath = await client.DownloadDriverAsync(productSeriesId, productFamilyId, osId, languageId, downloadTypeId);

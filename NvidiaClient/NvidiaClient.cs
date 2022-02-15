@@ -62,6 +62,9 @@ namespace NvidiaDriverUpdater.NvidiaClient
             var response4 = await _httpClient.GetAsync(downloadLink);
             
             var fileName = Path.GetFileName(downloadLink);
+
+            // TODO: check if file exists, prompt for delete/redownload
+            
             var downloadPath = Path.Combine(_downloadDir, fileName);
             
             using (var fileStream = new FileStream(downloadPath, FileMode.CreateNew))
