@@ -1,12 +1,19 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿// See https://aka.ms/new-console-template for more information
+
+using Microsoft.Extensions.DependencyInjection;
 using NvidiaDriverUpdater;
 using NvidiaDriverUpdater.NvidiaClient;
 
-
-// See https://aka.ms/new-console-template for more information
-
 var config = Startup.BuildConfig();
 var services = Startup.BuildServices(config);
+
+
+// Get current version number on system
+
+var currentVersion = CommandProcess.Execute("nvidia-smi --query-gpu=driver_version --format=csv,noheader");
+
+
+// Get latest version
 
 var client = services.GetRequiredService<INvidiaClient>();
 
@@ -26,9 +33,6 @@ var osLookup = await client.Lookup("4", productSeriesId);
 var osId = osLookup.LookupValues.Values.Where(t => t.Name.Equals(config["Nvidia:OperatingSystem"], StringComparison.CurrentCultureIgnoreCase)).Select(t => t.Value).FirstOrDefault();
 
 // TODO: Provide text-based selection instead of relying on appsetting values
-
-
-// TODO: Get current version number on system
 
 
 // TODO: Extract latest version number, and compare. Only download if higher version.
