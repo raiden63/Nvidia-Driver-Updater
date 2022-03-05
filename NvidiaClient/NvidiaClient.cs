@@ -1,6 +1,5 @@
 using System.Xml.Serialization;
 using HtmlAgilityPack;
-using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace NvidiaDriverUpdater.NvidiaClient
@@ -11,12 +10,12 @@ namespace NvidiaDriverUpdater.NvidiaClient
         private readonly ILogger _logger;
         private readonly string _downloadDir;
 
-        public NvidiaClient(HttpClient httpClient, IConfiguration config, ILogger logger)
+        public NvidiaClient(HttpClient httpClient, AppSettings appSettings, ILogger logger)
         {
             _httpClient = httpClient;
 
             _logger = logger;
-            _downloadDir = config["DownloadDir"];
+            _downloadDir = appSettings.DownloadDir;
         }
 
         public async Task<string?> DownloadDriverAsync(string productSeriesId, string productFamilyId, string osId, string languageId, string downloadTypeId)

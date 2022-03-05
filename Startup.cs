@@ -22,6 +22,8 @@ namespace NvidiaDriverUpdater
 
             services.AddSingleton<ILogger>(BuildSerilogLogger(config));
 
+            services.AddSingleton<AppSettings>(config.Get<AppSettings>());
+
             return services.BuildServiceProvider();
         }
 
