@@ -1,6 +1,6 @@
 using Serilog;
 
-public class InputHelper
+public class ConsoleHelper
 {
     public static ILogger? _logger;
     
@@ -17,5 +17,12 @@ public class InputHelper
 
         var key = Console.Read();
         return Enum.Parse<ConsoleKey>(key.ToString());
+    }
+
+    public static void ClearCurrentConsoleLine()
+    {
+        Console.SetCursorPosition(0, Console.CursorTop);
+        Console.Write(new string(' ', Console.BufferWidth));
+        Console.SetCursorPosition(0, Console.CursorTop);
     }
 }
