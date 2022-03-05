@@ -78,16 +78,11 @@ namespace NvidiaDriverUpdater.NvidiaClient
             
             _logger.Information("Downloading driver");
 
-            using (var fileStream = new FileStream(downloadPath, FileMode.CreateNew))
-            using (var response4 = await _httpClient.GetAsync(downloadLink))
-            using (var responseStream = await response4.Content.ReadAsStreamAsync())
-            {
-                await responseStream.CopyToAsync(fileStream);
-            }
+            var downloadedFile = await _httpClient.DownloadFileWithProgressBarAsync(downloadLink, downloadPath);
 
-            _logger.Information("Download successful: {DriverFilePath}", downloadPath);
+            _logger.Information("Download successful: {DriverFilePath}", downloadedFile);
 
-            return downloadPath;
+            return downloadedFile;
         }
 
         public async Task<NvidiaRootOptions> GetNvidiaRootOptionsAsync()
