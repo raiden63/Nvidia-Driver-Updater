@@ -54,8 +54,6 @@ namespace NvidiaDriverUpdater.NvidiaClient
 
             // Part 4: Download the driver
 
-            _logger.Information("Downloading driver");
-
             // TODO: Use HttpCompletionOption.ResponseHeadersRead to capture download progress
             // https://github.com/dotnet/runtime/issues/16681#issuecomment-195980023
             
@@ -78,6 +76,8 @@ namespace NvidiaDriverUpdater.NvidiaClient
                 File.Delete(downloadPath);
             }
             
+            _logger.Information("Downloading driver");
+
             using (var fileStream = new FileStream(downloadPath, FileMode.CreateNew))
             using (var response4 = await _httpClient.GetAsync(downloadLink))
             using (var responseStream = await response4.Content.ReadAsStreamAsync())
