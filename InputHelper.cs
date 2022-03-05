@@ -15,6 +15,7 @@ public class InputHelper
             Console.Write(message);
         }
 
-        return Console.ReadKey().Key;
+        var key = Console.Read();
+        return Enum.Parse<ConsoleKey>(key.ToString());
     }
 }
