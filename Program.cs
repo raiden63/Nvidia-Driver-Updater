@@ -14,6 +14,10 @@ var appSettings = services.GetRequiredService<AppSettings>();
 var currentVersion = CommandProcess.Execute("nvidia-smi --query-gpu=driver_version --format=csv,noheader");
 
 
+// TODO: Use Nvidia's other driver download page, that uses actual JSON responses:
+// https://www.nvidia.com/en-us/geforce/drivers/
+
+
 // Get latest version
 
 var client = services.GetRequiredService<INvidiaClient>();
