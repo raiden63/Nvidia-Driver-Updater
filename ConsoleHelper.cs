@@ -19,11 +19,4 @@ public class ConsoleHelper
         Console.WriteLine();
         return key.Key;
     }
-
-    public static void ClearCurrentConsoleLine()
-    {
-        Console.SetCursorPosition(0, Console.CursorTop);
-        Console.Write(new string(' ', Console.BufferWidth));
-        Console.SetCursorPosition(0, Console.CursorTop);
-    }
 }
