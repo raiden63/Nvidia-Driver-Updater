@@ -32,15 +32,35 @@ public static class DownloadProgressHelper
                     
                     await fileStream.WriteAsync(buffer, 0, read);
 
-                    var downloadPercent = (double)totalRead / totalBytes * 100;
-                    Console.Write($"\rDownload Progress: {downloadPercent:F3}% [{totalMegaBytesRead:F2}MB / {totalMegaBytes:F2}MB]");
+                    WriteConsoleProgress(totalMegaBytesRead, totalMegaBytes, read == totalRead);
 
                     moreToRead = read > 0;
                 } while (moreToRead);
             }
         }
 
-        Console.WriteLine();
+        Console.WriteLine("Done");
         return downloadPath;
+    }
+
+    public static void WriteConsoleProgress(double currentMB, double totalMB, bool firstLine = false)
+    {
+        if (!firstLine)
+        {
+            Console.SetCursorPosition(0, Console.CursorTop - 1);
+            ConsoleHelper.ClearCurrentConsoleLine();
+        }
+
+        var downloadPercent = currentMB / totalMB * 100;
+        Console.WriteLine($"Download Progress: {downloadPercent:F3}% [{currentMB:F2}MB / {totalMB:F2}MB]");
+
+        if (!firstLine)
+        {
+            ConsoleHelper.ClearCurrentConsoleLine();
+        }
+
+        var progressBarLength = 20;
+        var currentProgress = (int)(downloadPercent / (100 / progressBarLength));
+        Console.Write($"[{new string('#', currentProgress)}{new string(' ', progressBarLength - currentProgress)}] ");
     }
 }

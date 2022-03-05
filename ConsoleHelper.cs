@@ -15,8 +15,9 @@ public class ConsoleHelper
             Console.Write(message);
         }
 
-        var key = Console.Read();
-        return Enum.Parse<ConsoleKey>(key.ToString());
+        var key = Console.ReadKey();
+        Console.WriteLine();
+        return key.Key;
     }
 
     public static void ClearCurrentConsoleLine()
