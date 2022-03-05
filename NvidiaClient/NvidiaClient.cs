@@ -19,7 +19,7 @@ namespace NvidiaDriverUpdater.NvidiaClient
             _downloadDir = config["DownloadDir"];
         }
 
-        public async Task<string> DownloadDriverAsync(string productSeriesId, string productFamilyId, string osId, string languageId, string downloadTypeId)
+        public async Task<string?> DownloadDriverAsync(string productSeriesId, string productFamilyId, string osId, string languageId, string downloadTypeId)
         {
             _logger.Information("Scrubbing through Nvidia site");
 
@@ -58,16 +58,28 @@ namespace NvidiaDriverUpdater.NvidiaClient
 
             // TODO: Use HttpCompletionOption.ResponseHeadersRead to capture download progress
             // https://github.com/dotnet/runtime/issues/16681#issuecomment-195980023
-
-            var response4 = await _httpClient.GetAsync(downloadLink);
             
             var fileName = Path.GetFileName(downloadLink);
 
             // TODO: check if file exists, prompt for delete/redownload
             
             var downloadPath = Path.Combine(_downloadDir, fileName);
+
+            if (File.Exists(downloadPath))
+            {
+                var overwrite = InputHelper.PromptKey($"The file [{downloadPath}] already exists. Do you want to overwrite it? [Y]es, or [N]o to exit: ");
+
+                if (overwrite != ConsoleKey.Y)
+                {
+                    _logger.Information("File already exists. Exiting...");
+                    return null;
+                }
+
+                File.Delete(downloadPath);
+            }
             
             using (var fileStream = new FileStream(downloadPath, FileMode.CreateNew))
+            using (var response4 = await _httpClient.GetAsync(downloadLink))
             using (var responseStream = await response4.Content.ReadAsStreamAsync())
             {
                 await responseStream.CopyToAsync(fileStream);
