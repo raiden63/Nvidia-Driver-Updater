@@ -18,14 +18,14 @@ namespace NvidiaDriverUpdater.NvidiaClient
             _downloadDir = appSettings.DownloadDir;
         }
 
-        public async Task<string?> DownloadDriverAsync(string productSeriesId, string productFamilyId, string osId, string languageId, string downloadTypeId)
+        public async Task<string?> DownloadDriverAsync(string productSeriesId, string productId, string osId, string languageId, string downloadTypeId)
         {
             _logger.Information("Scrubbing through Nvidia site");
 
             // Part 1: Submit driver search parameters
             // Response body will be a URL
 
-            var response1 = await _httpClient.GetAsync($"download/processDriver.aspx?psid={productSeriesId}&pfid={productFamilyId}&osId={osId}&lid={languageId}&dtid={downloadTypeId}&lang-en-us&ctk=0&rpf=1&dtcid=1");
+            var response1 = await _httpClient.GetAsync($"download/processDriver.aspx?psid={productSeriesId}&pfid={productId}&osId={osId}&lid={languageId}&dtid={downloadTypeId}&lang-en-us&ctk=0&rpf=1&dtcid=1");
             var driverPageLink = await response1.Content.ReadAsStringAsync();
 
             _logger.Information("Redirect Link: {RedirectLink}", driverPageLink);
@@ -82,6 +82,11 @@ namespace NvidiaDriverUpdater.NvidiaClient
             _logger.Information("Download successful: {DriverFilePath}", downloadedFile);
 
             return downloadedFile;
+        }
+
+        public Task<string> DownloadGeforceDriverAsync(string productTypeId, string productSeriesId, string productId, string osId, string languageId, string downloadTypeId)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<NvidiaRootOptions> GetNvidiaRootOptionsAsync()

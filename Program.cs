@@ -32,7 +32,7 @@ var productSeriesLookup = await client.Lookup("2", productTypeId);
 var productSeriesId = productSeriesLookup.LookupValues.Values.Where(t => t.Name.Equals(appSettings.Nvidia.ProductSeries, StringComparison.CurrentCultureIgnoreCase)).Select(t => t.Value).FirstOrDefault();
 
 var productFamilyLookup = await client.Lookup("3", productSeriesId);
-var productFamilyId = productFamilyLookup.LookupValues.Values.Where(t => t.Name.Equals(appSettings.Nvidia.ProductFamily, StringComparison.CurrentCultureIgnoreCase)).Select(t => t.Value).FirstOrDefault();
+var productId = productFamilyLookup.LookupValues.Values.Where(t => t.Name.Equals(appSettings.Nvidia.Product, StringComparison.CurrentCultureIgnoreCase)).Select(t => t.Value).FirstOrDefault();
 
 var osLookup = await client.Lookup("4", productSeriesId);
 var osId = osLookup.LookupValues.Values.Where(t => t.Name.Equals(appSettings.Nvidia.OperatingSystem, StringComparison.CurrentCultureIgnoreCase)).Select(t => t.Value).FirstOrDefault();
@@ -43,7 +43,7 @@ var osId = osLookup.LookupValues.Values.Where(t => t.Name.Equals(appSettings.Nvi
 // TODO: Extract latest version number, and compare. Only download if higher version.
 
 
-var downloadPath = await client.DownloadDriverAsync(productSeriesId, productFamilyId, osId, languageId, downloadTypeId);
+var downloadPath = await client.DownloadDriverAsync(productSeriesId, productId, osId, languageId, downloadTypeId);
 
 
 

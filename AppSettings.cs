@@ -18,7 +18,7 @@ public class NvidiaConfig
 
     public string ProductSeries { get; set; } = string.Empty;
     
-    public string ProductFamily { get; set; } = string.Empty;
+    public string Product { get; set; } = string.Empty;
     
     public string OperatingSystem { get; set; } = string.Empty;
     
