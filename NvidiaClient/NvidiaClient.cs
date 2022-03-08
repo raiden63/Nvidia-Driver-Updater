@@ -84,11 +84,6 @@ namespace NvidiaDriverUpdater.NvidiaClient
             return downloadedFile;
         }
 
-        public Task<string> DownloadGeforceDriverAsync(string productTypeId, string productSeriesId, string productId, string osId, string languageId, string downloadTypeId)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<NvidiaRootOptions> GetNvidiaRootOptionsAsync()
         {
             var response = await _httpClient.GetAsync("download/index.aspx");
