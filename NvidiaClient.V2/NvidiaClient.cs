@@ -18,11 +18,12 @@ public class NvidiaClient : INvidiaClient
         _appSettings = appSettings;
     }
 
-    public async Task<string?> DownloadDriverAsync()
+    public async Task<(Version Version, string DownloadUrl)> GetLatestDriverAsync()
     {
         // 1. Get the complete list of dropdown options
 
         var initialResponse = await _httpClient.GetAsync("nvidia_web_services/controller.php?com.nvidia.services.Drivers.getMenuArrays");
+        initialResponse.EnsureSuccessStatusCode();
 
         // TODO: Update deserializer to parse out ID's as int's instead of strings or generic objects
         var nvidiaDropdownOptions = JsonSerializer.Deserialize<List<List<NvidiaOption>?>>(await initialResponse.Content.ReadAsStringAsync());
@@ -41,6 +42,8 @@ public class NvidiaClient : INvidiaClient
         var languageId = Lookup(languages, _appSettings.Nvidia.Language);
 
         var productResponse = await _httpClient.GetAsync($@"nvidia_web_services/controller.php?com.nvidia.services.Drivers.getMenuArrays/{{""pt"":{productTypeId.Id}, ""pst"": {productSeriesId.Id}}}");
+        productResponse.EnsureSuccessStatusCode();
+
         var productOptions = JsonSerializer.Deserialize<List<List<NvidiaOption>?>>(await productResponse.Content.ReadAsStringAsync());
 
         var productId = Lookup(productOptions[2], _appSettings.Nvidia.Product);
@@ -63,9 +66,20 @@ public class NvidiaClient : INvidiaClient
                                 + "&numberOfResults=1"
         ;
         var searchDriverResponse = await _httpClient.GetAsync(driverLookupUrl);
+        searchDriverResponse.EnsureSuccessStatusCode();
+
         var driverResults = JsonSerializer.Deserialize<NvidiaDriverResults>(await searchDriverResponse.Content.ReadAsStreamAsync());
 
-        return driverResults.DriverIds[0].DownloadInfo.DownloadUrl;
+        var downloadInfo = driverResults.DriverIds[0].DownloadInfo;
+        return (
+            Version: new Version(downloadInfo.Version),
+            DownloadUrl: downloadInfo.DownloadUrl
+        );
+    }
+
+    public Task<string> DownloadDriver(string url)
+    {
+        throw new NotImplementedException();
     }
 
     private NvidiaOption? Lookup(List<NvidiaOption> options, string targetLabel)

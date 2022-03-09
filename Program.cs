@@ -3,20 +3,21 @@
 using Microsoft.Extensions.DependencyInjection;
 using NvidiaDriverUpdater;
 using NvidiaDriverUpdater.NvidiaClient.V2;
+using Serilog;
+
 
 var config = Startup.BuildConfig();
 var services = Startup.BuildServices(config);
+var logger = services.GetRequiredService<ILogger>();
 
 var appSettings = services.GetRequiredService<AppSettings>();
 
 // Get current version number on system
 
-var currentVersion = CommandProcess.Execute("nvidia-smi --query-gpu=driver_version --format=csv,noheader");
+var currentVersionStr = CommandProcess.Execute("nvidia-smi --query-gpu=driver_version --format=csv,noheader");
+var currentVersion = new Version(currentVersionStr);
 
-
-// TODO: Use Nvidia's other driver download page, that uses actual JSON responses:
-// https://www.nvidia.com/en-us/geforce/drivers/
-
+logger.Information("Current Version {CurrentVersion}", currentVersion.ToString());
 
 // Get latest version
 
@@ -40,10 +41,21 @@ var client = services.GetRequiredService<INvidiaClient>();
 
         // var downloadPath = await client.DownloadDriverAsync(productSeriesId, productId, osId, languageId, downloadTypeId);
 
+logger.Information("Getting latest driver information", currentVersion.ToString());
+var latestDriver = await client.GetLatestDriverAsync();
 
-var downloadUrl = await client.DownloadDriverAsync();
+logger.Information("Latest driver version: {LatestVersion}", latestDriver.Version.ToString());
 
+if (currentVersion.CompareTo(latestDriver.Version) < 0)
+{
+    // TODO: Get console prompt to download latest driver
+}
+else
+{
+    logger.Information("Running latest driver version!");
+}
 
+logger.Information("Exiting program");
 
 
 

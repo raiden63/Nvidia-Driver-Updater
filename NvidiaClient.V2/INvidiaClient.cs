@@ -2,5 +2,7 @@ namespace NvidiaDriverUpdater.NvidiaClient.V2;
 
 public interface INvidiaClient
 {
-    Task<string?> DownloadDriverAsync();
+    Task<(Version Version, string DownloadUrl)> GetLatestDriverAsync();
+
+    Task<string> DownloadDriver(string url);
 }
