@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using NvidiaDriverUpdater;
 using NvidiaDriverUpdater.NvidiaClient.V2;
@@ -56,6 +57,15 @@ if (currentVersion.CompareTo(latestDriver.Version) < 0)
         if (!string.IsNullOrEmpty(downloadedPath))
         {
             logger.Information("Download complete: {DownloadedPath}", downloadedPath);
+
+            var runProcessAnswer = ConsoleHelper.Prompt("Run the driver update? [Y]es, or any other key to exit: ");
+            if (runProcessAnswer == ConsoleKey.Y)
+            {
+                logger.Information($"Running driver update {latestDriver.Version.ToString()}");
+                var process = Process.Start(downloadedPath);
+
+                // TODO: Wait until process has exited, then prompt to delete installer
+            }
         }
     }
 }
