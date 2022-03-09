@@ -4,7 +4,7 @@ public class ConsoleHelper
 {
     public static ILogger? _logger;
     
-    public static ConsoleKey PromptKey(string message, bool newLine = false)
+    public static ConsoleKey Prompt(string message, bool newLine = false)
     {
         if (newLine)
         {
@@ -15,8 +15,15 @@ public class ConsoleHelper
             Console.Write(message);
         }
 
-        var key = Console.ReadKey();
+        var input = Console.ReadLine();
         Console.WriteLine();
-        return key.Key;
+
+        ConsoleKey key;
+        if (Enum.TryParse<ConsoleKey>(input, out key))
+        {
+            return key;
+        }
+
+        return default(ConsoleKey);
     }
 }

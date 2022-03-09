@@ -64,7 +64,7 @@ namespace NvidiaDriverUpdater.NvidiaClient
 
             if (File.Exists(downloadPath))
             {
-                var overwrite = ConsoleHelper.PromptKey($"The file [{downloadPath}] already exists. Do you want to overwrite it? [Y]es, or [N]o to exit: ");
+                var overwrite = ConsoleHelper.Prompt($"The file [{downloadPath}] already exists. Do you want to overwrite it? [Y]es, or [N]o to exit: ");
 
                 if (overwrite != ConsoleKey.Y)
                 {
