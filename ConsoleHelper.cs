@@ -16,10 +16,9 @@ public class ConsoleHelper
         }
 
         var input = Console.ReadLine();
-        Console.WriteLine();
 
         ConsoleKey key;
-        if (Enum.TryParse<ConsoleKey>(input, out key))
+        if (Enum.TryParse<ConsoleKey>(input.ToUpper(), out key))
         {
             return key;
         }

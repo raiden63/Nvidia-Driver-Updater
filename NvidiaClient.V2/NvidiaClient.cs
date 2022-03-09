@@ -77,9 +77,33 @@ public class NvidiaClient : INvidiaClient
         );
     }
 
-    public Task<string> DownloadDriver(string url)
+    public async Task<string> DownloadDriverAsync(string url, string fileName = "")
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrEmpty(fileName))
+        {
+            fileName = Path.GetFileName(url);
+        }
+
+        var downloadPath = Path.Combine(_appSettings.DownloadDir, fileName);
+
+        _logger.Information("Downloading driver to '{DownloadPath}'", downloadPath);
+
+        if (File.Exists(downloadPath))
+        {
+            var answer = ConsoleHelper.Prompt("File already exists: Do you want overwrite? [Y]es, or any other key to exit: ");
+            if (answer != ConsoleKey.Y)
+            {
+                return string.Empty;
+            }
+
+            File.Delete(downloadPath);
+        }
+
+        var downloadedPath = await _httpClient.DownloadFileWithProgressBarAsync(url, downloadPath);
+
+        _logger.Information("Download complete");
+
+        return downloadedPath;
     }
 
     private NvidiaOption? Lookup(List<NvidiaOption> options, string targetLabel)

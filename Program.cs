@@ -48,7 +48,16 @@ logger.Information("Latest driver version: {LatestVersion}", latestDriver.Versio
 
 if (currentVersion.CompareTo(latestDriver.Version) < 0)
 {
-    // TODO: Get console prompt to download latest driver
+    var answer = ConsoleHelper.Prompt("Do you want to download the latest driver? [Y]es, or any other key to exit: ");
+    if (answer == ConsoleKey.Y)
+    {
+        var downloadedPath = await client.DownloadDriverAsync(latestDriver.DownloadUrl, $"Nvidia GeForce Driver {latestDriver.Version.ToString()}.exe");
+
+        if (!string.IsNullOrEmpty(downloadedPath))
+        {
+            logger.Information("Download complete: {DownloadedPath}", downloadedPath);
+        }
+    }
 }
 else
 {
