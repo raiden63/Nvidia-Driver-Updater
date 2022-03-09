@@ -22,16 +22,13 @@ public class NvidiaClient : INvidiaClient
     {
         // 1. Get the complete list of dropdown options
 
-        var response = await _httpClient.GetAsync("nvidia_web_services/controller.php?com.nvidia.services.Drivers.getMenuArrays");
-
-        var responseString = await response.Content.ReadAsStringAsync();
+        var initialResponse = await _httpClient.GetAsync("nvidia_web_services/controller.php?com.nvidia.services.Drivers.getMenuArrays");
 
         // TODO: Update deserializer to parse out ID's as int's instead of strings or generic objects
-        var nvidiaDropdownOptions = JsonSerializer.Deserialize<List<List<NvidiaOption>?>>(responseString);
+        var nvidiaDropdownOptions = JsonSerializer.Deserialize<List<List<NvidiaOption>?>>(await initialResponse.Content.ReadAsStringAsync());
 
         var productTypes = nvidiaDropdownOptions[0];
         var productSeries = nvidiaDropdownOptions[1];
-        var products = nvidiaDropdownOptions[2];
         var operatingSystems = nvidiaDropdownOptions[4];
         var languages = nvidiaDropdownOptions[5];
 
@@ -40,9 +37,13 @@ public class NvidiaClient : INvidiaClient
 
         var productTypeId = Lookup(productTypes, _appSettings.Nvidia.ProductType);
         var productSeriesId = Lookup(productSeries, _appSettings.Nvidia.ProductSeries);
-        var productId = Lookup(products, _appSettings.Nvidia.Product);
         var osId = Lookup(operatingSystems, _appSettings.Nvidia.OperatingSystem);
         var languageId = Lookup(languages, _appSettings.Nvidia.Language);
+
+        var productResponse = await _httpClient.GetAsync($@"nvidia_web_services/controller.php?com.nvidia.services.Drivers.getMenuArrays/{{""pt"":{productTypeId.Id}, ""pst"": {productSeriesId.Id}}}");
+        var productOptions = JsonSerializer.Deserialize<List<List<NvidiaOption>?>>(await productResponse.Content.ReadAsStringAsync());
+
+        var productId = Lookup(productOptions[2], _appSettings.Nvidia.Product);
 
         // 3. Search Drivers
 
