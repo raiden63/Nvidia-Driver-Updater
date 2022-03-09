@@ -25,4 +25,6 @@ public class NvidiaConfig
     public string DownloadType { get; set; } = string.Empty;
     
     public string Language { get; set; } = string.Empty;
+
+    public bool IsGameReadyDriver { get; set; } = false;
 }

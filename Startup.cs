@@ -2,7 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
-using Client = NvidiaDriverUpdater.NvidiaClient;
+using Client = NvidiaDriverUpdater.NvidiaClient.V2;
 
 namespace NvidiaDriverUpdater
 {
@@ -11,18 +11,19 @@ namespace NvidiaDriverUpdater
         public static ServiceProvider BuildServices(IConfiguration config)
         {
             var services = new ServiceCollection();
+            var appSettings = config.Get<AppSettings>();
+
+            services.AddSingleton<AppSettings>(appSettings);
 
             services.AddSingleton<IConfiguration>(config);
 
             services.AddHttpClient<Client.INvidiaClient, Client.NvidiaClient>(
                 client => {
-                    client.BaseAddress = new Uri(config["Nvidia:BaseUri"]);
+                    client.BaseAddress = new Uri(appSettings.Nvidia.BaseUri);
                 }
             );
 
             services.AddSingleton<ILogger>(BuildSerilogLogger(config));
-
-            services.AddSingleton<AppSettings>(config.Get<AppSettings>());
 
             return services.BuildServiceProvider();
         }
