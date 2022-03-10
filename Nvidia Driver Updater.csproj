@@ -24,9 +24,10 @@
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="appsettings.user.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.user.json" CopyToOutputDirectory="Always" />
   </ItemGroup>
 
 </Project>
