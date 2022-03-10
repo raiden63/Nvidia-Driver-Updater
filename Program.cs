@@ -7,6 +7,8 @@ using NvidiaDriverUpdater.NvidiaClient.V2;
 using Serilog;
 
 
+// TODO: Create a README.md
+
 var config = Startup.BuildConfig();
 var services = Startup.BuildServices(config);
 var logger = services.GetRequiredService<ILogger>();
